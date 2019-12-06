@@ -23,7 +23,7 @@ var constraints = lfsm.Constraints{
 }
 
 func NewMutex() *Mutex {
-	return &Mutex{lfsm.NewState(unlocked, constraints)}
+	return &Mutex{lfsm.NewState(constraints, lfsm.InitialState(unlocked))}
 }
 
 func (m Mutex) Lock() {

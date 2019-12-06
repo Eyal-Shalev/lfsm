@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	lfsm "state"
+	"github.com/Eyal-Shalev/lfsm"
 )
 
 func fatalIfErr(tb testing.TB, err error) {
@@ -35,7 +35,7 @@ func newBigState(size uint64) *lfsm.State {
 	for i := uint64(0); i < size; i++ {
 		constraints[i] = []uint64{(i + 1) % size}
 	}
-	return lfsm.NewState(size-1, constraints)
+	return lfsm.NewState(constraints, lfsm.InitialState(size-1))
 }
 
 func BenchmarkState10(b *testing.B)   { benchBigState(newBigState(10), b) }
@@ -43,11 +43,11 @@ func BenchmarkState100(b *testing.B)  { benchBigState(newBigState(100), b) }
 func BenchmarkState1000(b *testing.B) { benchBigState(newBigState(1000), b) }
 
 func TestIntermediateState(t *testing.T) {
-	s := lfsm.NewState(0, lfsm.Constraints{
+	s := lfsm.NewState(lfsm.Constraints{
 		0: {1},
 		1: {0, 2},
 		2: {0},
-	})
+	}, lfsm.InitialState(0))
 
 	if err := s.Transition(0); err == nil {
 		t.Error("Invalid transition error expected.")
@@ -80,11 +80,11 @@ func TestIntermediateState(t *testing.T) {
 
 func TestFSM_Transition(t *testing.T) {
 	rand.Seed(time.Now().UTC().UnixNano())
-	s := lfsm.NewState(0, lfsm.Constraints{
+	s := lfsm.NewState(lfsm.Constraints{
 		0: {1, 2},
 		1: {0, 2},
 		2: {0, 1},
-	})
+	}, lfsm.InitialState(0))
 
 	var tErr [2]atomic.Value
 

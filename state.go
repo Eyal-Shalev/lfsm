@@ -1,11 +1,22 @@
 package lfsm
 
 import (
+	"strconv"
 	"sync/atomic"
 )
 
+type StateNameMap map[uint64]string
+func (m StateNameMap) find(v uint64) string {
+	name, ok := m[v]
+	if !ok {
+		name = strconv.Itoa(int(v))
+	}
+	return name
+}
+
 type transition struct {
 	src, dst uint64
+	stateNames StateNameMap
 }
 
 type transFn func() error
@@ -14,6 +25,7 @@ type transFnMap map[uint64]transFn
 type State struct {
 	current     uint64
 	transitions map[uint64]transFnMap
+	stateNames StateNameMap
 }
 
 func (s *State) Current() uint64 {
@@ -26,7 +38,7 @@ func (s *State) Transition(dst uint64) error {
 	src := atomic.LoadUint64(&s.current)
 	f, ok := s.transitions[src][dst]
 	if !ok {
-		return &InvalidTransitionError{src, dst}
+		return &InvalidTransitionError{src, dst, s.stateNames}
 	}
 	return f()
 }
@@ -34,7 +46,7 @@ func (s *State) Transition(dst uint64) error {
 func (s *State) makeTransFn(src, dst uint64) transFn {
 	return func() error {
 		if !atomic.CompareAndSwapUint64(&s.current, src, dst) {
-			return &TransitionError{src, dst}
+			return &TransitionError{src, dst, s.stateNames}
 		}
 		return nil
 	}
@@ -42,10 +54,10 @@ func (s *State) makeTransFn(src, dst uint64) transFn {
 
 type Constraints map[uint64][]uint64
 
-func NewState(initial uint64, m Constraints) *State {
+func NewState(m Constraints, opts ...Option) *State {
 	s := State{
-		current:     initial,
 		transitions: make(map[uint64]transFnMap, len(m)),
+		stateNames: make(StateNameMap, len(m)),
 	}
 
 	for src, dsts := range m {
@@ -53,6 +65,10 @@ func NewState(initial uint64, m Constraints) *State {
 		for _, dst := range dsts {
 			s.transitions[src][dst] = s.makeTransFn(src, dst)
 		}
+	}
+
+	for _,o := range opts {
+		o(&s)
 	}
 
 	return &s

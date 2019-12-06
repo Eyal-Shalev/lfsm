@@ -132,7 +132,7 @@ var transitionMap = lfsm.Constraints{
 
 func newOrder() *order {
 	return &order{
-		state: lfsm.NewState(creating, transitionMap),
+		state: lfsm.NewState(transitionMap, lfsm.InitialState(creating)),
 		items: map[string]int{},
 	}
 }
