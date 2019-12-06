@@ -1,14 +1,17 @@
-package lfsm_test
+# Lock-Free State Machine
+LFSM is a light-weight State Machine implementation that doesn't use any locks.
+
+## Basic Example
+```go
+package main
 
 import (
-	"log"
-	"testing"
+    "log"
 
-	"github.com/Eyal-Shalev/lfsm"
+    "github.com/Eyal-Shalev/lfsm"
 )
 
-func TestExample1(t *testing.T) {
-
+func main() {
 	const (
 		closed uint64 = iota
 		opened
@@ -32,3 +35,21 @@ func TestExample1(t *testing.T) {
 
 	log.Println(s.Current()) // 2019/12/06 17:34:52 0
 }
+```
+
+## Concurrent access - Elevator
+```go
+package main
+
+import (
+    "log"
+
+    "github.com/Eyal-Shalev/lfsm"
+)
+
+type Elevator
+
+func main() {
+    
+}
+```

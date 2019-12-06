@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	lfsm "state"
+	"github.com/Eyal-Shalev/lfsm"
 )
 
 func fatalIfErr(tb testing.TB, err error) {
