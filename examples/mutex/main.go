@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"state"
+	"github.com/Eyal-Shalev/lfsm"
 )
 
 const (
