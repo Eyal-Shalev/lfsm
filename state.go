@@ -32,10 +32,19 @@ func (s *State) Current() uint64 {
 	return atomic.LoadUint64(&s.current)
 }
 
+func (s *State) CurrentName() string {
+	return s.stateNames.find(atomic.LoadUint64(&s.current))
+}
+
 // Transition tries to change the state.
 // Returns an error if the transition failed.
 func (s *State) Transition(dst uint64) error {
-	src := atomic.LoadUint64(&s.current)
+	return s.TransitionFrom(atomic.LoadUint64(&s.current), dst)
+}
+
+// TransitionFrom tries to change the state.
+// Returns an error if the transition failed.
+func (s *State) TransitionFrom(src, dst uint64) error {
 	f, ok := s.transitions[src][dst]
 	if !ok {
 		return &InvalidTransitionError{src, dst, s.stateNames}
