@@ -15,7 +15,8 @@ type transFnMap map[uint64]transFn
 type State struct {
 	current     uint64
 	transitions map[uint64]transFnMap
-	stateNames StateNameMap
+	stateNames  StateNameMap
+	initial     uint64
 }
 
 // Current returns the current state.

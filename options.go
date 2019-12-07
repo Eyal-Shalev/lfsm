@@ -6,6 +6,7 @@ type option func(s *State)
 // InitialState sets the initial state of the state machine
 func InitialState(v uint64) option {
 	return func(s *State) {
+		s.initial = v
 		s.current = v
 	}
 }

@@ -25,6 +25,8 @@ func main() {
 		lfsm.StateName(closed, "closed"),
 	)
 
+	l.Println(s) // digraph g{s[label="",shape=none,height=.0,width=.0];s->n1;n0[label="opened"];n1[label="closed"];n0->n1;n1->n0;}
+
 	l.Printf("Current state: %s", s.CurrentName()) // Current state: closed
 
 	if err := s.Transition(opened); err != nil {
