@@ -7,7 +7,7 @@ import (
 type TransitionError transition
 
 func (f TransitionError) Error() string {
-	return fmt.Sprintf("trasition failed (%s -> %s)", f.stateNames.find(f.src), f.stateNames.find(f.dst))
+	return fmt.Sprintf("transition failed (%s -> %s)", f.stateNames.find(f.src), f.stateNames.find(f.dst))
 }
 
 type InvalidTransitionError TransitionError

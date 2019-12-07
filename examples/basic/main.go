@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	l := log.New(os.Stdout, "", log.Lmicroseconds|log.Lshortfile)
+	l := log.New(os.Stdout, "", log.Lshortfile)
 	const (
 		opened uint64 = iota
 		closed
@@ -23,17 +23,25 @@ func main() {
 		lfsm.StateName(closed, "closed"),
 	)
 
-	l.Println(s.CurrentName()) // 03:48:26.109387 example_test.go:29: closed
+	l.Printf("Current state: %s", s.CurrentName()) // Current state: closed
 
 	if err := s.Transition(opened); err != nil {
 		l.Fatal(err)
 	}
 
-	l.Println(s.CurrentName()) // 03:48:26.132388 example_test.go:35: opened
+	if err := s.Transition(opened); err != nil {
+		l.Printf("Expected error: %s", err) // Expected error: invalid transition (opened -> opened)
+	}
+
+	if err := s.TransitionFrom(closed, opened); err != nil {
+		l.Printf("Expected error: %s", err) // Expected error: transition failed (closed -> opened)
+	}
+
+	l.Printf("Current state: %s", s.CurrentName()) // Current state: opened
 
 	if err := s.Transition(closed); err != nil {
 		l.Fatal(err)
 	}
 
-	l.Println(s.CurrentName()) // 03:48:26.132388 example_test.go:41: closed
+	l.Printf("Current state: %s", s.CurrentName()) // Current state: closed
 }

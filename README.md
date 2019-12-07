@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	l := log.New(os.Stdout, "", log.Lmicroseconds|log.Lshortfile)
+	l := log.New(os.Stdout, "", log.Lshortfile)
 	const (
 		opened uint64 = iota
 		closed
@@ -28,21 +28,28 @@ func main() {
 		lfsm.StateName(closed, "closed"),
 	)
 
-	l.Println(s.CurrentName()) // 03:48:26.109387 example_test.go:29: closed
+	l.Printf("Current state: %s", s.CurrentName()) // Current state: closed
 
 	if err := s.Transition(opened); err != nil {
 		l.Fatal(err)
 	}
 
-	l.Println(s.CurrentName()) // 03:48:26.132388 example_test.go:35: opened
+	if err := s.Transition(opened); err != nil {
+		l.Printf("Expected error: %s", err) // Expected error: invalid transition (opened -> opened)
+	}
+
+	if err := s.TransitionFrom(closed, opened); err != nil {
+		l.Printf("Expected error: %s", err) // Expected error: transition failed (closed -> opened)
+	}
+
+	l.Printf("Current state: %s", s.CurrentName()) // Current state: opened
 
 	if err := s.Transition(closed); err != nil {
 		l.Fatal(err)
 	}
 
-	l.Println(s.CurrentName()) // 03:48:26.132388 example_test.go:41: closed
+	l.Printf("Current state: %s", s.CurrentName()) // Current state: closed
 }
-
 ```
 
 ## Concurrent access
@@ -55,11 +62,11 @@ import (
 	"sync"
 	"time"
 
-    "github.com/Eyal-Shalev/lfsm"
+	"github.com/Eyal-Shalev/lfsm"
 )
 
 func main() {
-	l := log.New(os.Stdout, "", log.Lmicroseconds|log.Lshortfile)
+	l := log.New(os.Stdout, "", log.Lshortfile)
 	wg := new(sync.WaitGroup)
 	s := lfsm.NewState(lfsm.Constraints{
 		0: {1, 2},
@@ -67,9 +74,12 @@ func main() {
 		2: {2},
 	}, lfsm.StateName(0, "start"), lfsm.StateName(1, "intermediate"), lfsm.StateName(2, "final"))
 
+	l.Printf("Current state: %s", s.CurrentName()) // Current state: start
+
 	if err := s.Transition(1); err != nil {
 		l.Fatalln(err) // no reason to fail.
 	}
+	l.Printf("Current state: %s", s.CurrentName()) // Current state: intermediate
 
 	wg.Add(1)
 	time.AfterFunc(time.Millisecond, func() {
@@ -77,6 +87,7 @@ func main() {
 		if err := s.Transition(2); err != nil {
 			l.Fatalln(err) // no reason to fail.
 		}
+		l.Printf("Current state: %s", s.CurrentName()) // Current state: final
 	})
 
 	wg.Add(1)
@@ -85,6 +96,7 @@ func main() {
 		if err := s.Transition(2); err != nil {
 			l.Fatalln(err) // no reason to fail.
 		}
+		l.Printf("Current state: %s", s.CurrentName()) // Current state: final
 	})
 
 	wg.Add(1)
@@ -93,21 +105,22 @@ func main() {
 		if err := s.Transition(2); err != nil {
 			l.Fatalln(err) // no reason to fail.
 		}
+		l.Printf("Current state: %s", s.CurrentName()) // Current state: final
 	})
 
 	if err := s.TransitionFrom(0, 2); err != nil {
-		l.Printf("expected error: %s", err) // Invalid because current state is not 0
+		l.Printf("expected error: %s", err) // expected error: transition failed (start -> final)
 	}
 
 	if err := s.Transition(1); err != nil {
-		l.Printf("expected error: %s", err) // invalid because transitioning to 1 is only available from 0.
+		l.Printf("expected error: %s", err) // expected error: transition failed (intermediate -> intermediate)
 	}
 
 	wg.Add(1)
 	time.AfterFunc(4*time.Millisecond, func() {
 		defer wg.Done()
-		if err := s.Transition(1); err != nil {
-			l.Printf("expected error: %s", err) // invalid because transitioning to 1 is only available from 0.
+		if err := s.Transition(0); err != nil {
+			l.Printf("expected error: %s", err) // expected error: transition failed (final -> start)
 		}
 	})
 
