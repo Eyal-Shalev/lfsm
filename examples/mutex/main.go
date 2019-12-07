@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	unlocked uint64 = iota
+	unlocked uint32 = iota
 	locked
 )
 

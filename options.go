@@ -4,7 +4,7 @@ package lfsm
 type option func(s *State)
 
 // InitialState sets the initial state of the state machine
-func InitialState(v uint64) option {
+func InitialState(v uint32) option {
 	return func(s *State) {
 		s.initial = v
 		s.current = v
@@ -12,7 +12,7 @@ func InitialState(v uint64) option {
 }
 
 // StateName sets an alias to a state integer.
-func StateName(v uint64, name string) option {
+func StateName(v uint32, name string) option {
 	return func(s *State) {
 		s.stateNames[v] = name
 	}

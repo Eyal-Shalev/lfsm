@@ -12,7 +12,7 @@ import (
 func main() {
 	l := log.New(os.Stdout, "", log.Lshortfile)
 	const (
-		opened uint64 = iota
+		opened uint32 = iota
 		closed
 	)
 	s := lfsm.NewState(

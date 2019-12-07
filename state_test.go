@@ -24,16 +24,16 @@ func logErr(tb testing.TB, err error) {
 func benchBigState(s *lfsm.State, b *testing.B) {
 	size := s.Current() + 1
 	for n := 0; n < b.N; n++ {
-		for i := uint64(0); i < size; i++ {
+		for i := uint32(0); i < size; i++ {
 			logErr(b, s.Transition(i))
 		}
 	}
 }
 
-func newBigState(size uint64) *lfsm.State {
+func newBigState(size uint32) *lfsm.State {
 	constraints := make(lfsm.Constraints, size)
-	for i := uint64(0); i < size; i++ {
-		constraints[i] = []uint64{(i + 1) % size}
+	for i := uint32(0); i < size; i++ {
+		constraints[i] = []uint32{(i + 1) % size}
 	}
 	return lfsm.NewState(constraints, lfsm.InitialState(size-1))
 }
@@ -94,7 +94,7 @@ func TestFSM_Transition(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
-			err := s.Transition(uint64(rand.Intn(3)))
+			err := s.Transition(uint32(rand.Intn(3)))
 			switch err.(type) {
 			case *lfsm.InvalidTransitionError:
 				tErr[1].Store(err)

@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	creating uint64 = iota
+	creating uint32 = iota
 	adding
 	finalizing
 	paying
@@ -103,7 +103,7 @@ func newOrder() *order {
 				canceled:   {canceled},
 			},
 			lfsm.InitialState(creating),
-			lfsm.StateNames(map[uint64]string{
+			lfsm.StateNames(map[uint32]string{
 				creating: "creating",
 				adding: "adding",
 				finalizing: "finalizing",

@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	idle uint64 = iota
+	idle uint32 = iota
 	addingCash
 	buying
 	withdrawing
@@ -20,8 +20,8 @@ const (
 
 type VendingMachine struct {
 	state    *lfsm.State
-	balance  uint64
-	products map[string]uint64
+	balance  uint32
+	products map[string]uint32
 }
 
 func panicIfErr(err error) {
@@ -30,14 +30,14 @@ func panicIfErr(err error) {
 	}
 }
 
-func (vm *VendingMachine) addCash(amount uint64) error {
+func (vm *VendingMachine) addCash(amount uint32) error {
 	err := vm.state.Transition(addingCash)
 	if err != nil {
 		return fmt.Errorf("cannot add %v$ because %w", amount/100, err)
 	}
-	atomic.AddUint64(&vm.balance, amount)
+	atomic.AddUint32(&vm.balance, amount)
 	time.Sleep(time.Second / 2)
-	log.Printf("balance: %v$", float64(atomic.LoadUint64(&vm.balance))/100)
+	log.Printf("balance: %v$", float64(atomic.LoadUint32(&vm.balance))/100)
 	return vm.state.Transition(idle)
 }
 
@@ -46,7 +46,7 @@ func (vm *VendingMachine) withdraw() error {
 	if err != nil {
 		return fmt.Errorf("cannot withdraw because %w", err)
 	}
-	withdrawn := atomic.SwapUint64(&vm.balance, 0)
+	withdrawn := atomic.SwapUint32(&vm.balance, 0)
 	log.Printf("withdrawn %v$, balance: 0$", float64(withdrawn)/100)
 	return vm.state.Transition(idle)
 }
@@ -57,13 +57,13 @@ func (vm *VendingMachine) buy(product string) error {
 		panicIfErr(vm.state.Transition(idle))
 		return fmt.Errorf("cannot buy because %w", err)
 	}
-	balance := atomic.LoadUint64(&vm.balance)
+	balance := atomic.LoadUint32(&vm.balance)
 	if balance < vm.products[product] {
 		panicIfErr(vm.state.Transition(idle))
 		return fmt.Errorf("cannot buy %s - missing %v$", product, float64(vm.products[product]-balance)/100)
 	}
-	atomic.AddUint64(&vm.balance, -vm.products[product])
-	balance = atomic.LoadUint64(&vm.balance)
+	atomic.AddUint32(&vm.balance, -vm.products[product])
+	balance = atomic.LoadUint32(&vm.balance)
 	vm.dropItem()
 	log.Printf("%s was purchased, %v$ is left in the machine", product, float64(balance)/100)
 	return vm.state.Transition(idle)
@@ -95,14 +95,14 @@ func main() {
 				withdrawing: {idle},
 			},
 			lfsm.InitialState(idle),
-			lfsm.StateNames(map[uint64]string{
+			lfsm.StateNames(map[uint32]string{
 				idle: "Idle",
 				addingCash: "Adding cash",
 				buying: "Buying",
 				withdrawing: "Withdrawing",
 			}),
 		),
-		products: map[string]uint64{
+		products: map[string]uint32{
 			"coke cola":    200,
 			"pepsi cola":   150,
 			"orange juice": 250,
