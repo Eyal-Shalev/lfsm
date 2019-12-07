@@ -95,12 +95,12 @@ func main() {
 				withdrawing: {idle},
 			},
 			lfsm.InitialState(idle),
-			lfsm.StateNames(map[uint32]string{
-				idle: "Idle",
-				addingCash: "Adding cash",
-				buying: "Buying",
+			lfsm.StateNameMap{
+				idle:        "Idle",
+				addingCash:  "Adding cash",
+				buying:      "Buying",
 				withdrawing: "Withdrawing",
-			}),
+			},
 		),
 		products: map[string]uint32{
 			"coke cola":    200,

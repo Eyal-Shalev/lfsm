@@ -71,7 +71,7 @@ func NewState(m Constraints, opts ...option) *State {
 	}
 
 	for _,o := range opts {
-		o(&s)
+		o.apply(&s)
 	}
 
 	return &s

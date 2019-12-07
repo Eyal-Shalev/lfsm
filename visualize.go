@@ -8,9 +8,7 @@ import (
 // String returns the Graphviz representation of this state machine.
 func (s *State) String() string {
 	buf := &bytes.Buffer{}
-
 	_,_ = fmt.Fprint(buf, "digraph g{")
-
 	_,_ = fmt.Fprintf(buf, `s[label="",shape=none,height=.0,width=.0];s->n%d;`, s.initial)
 
 	for v,name := range s.stateNames {
@@ -28,6 +26,5 @@ func (s *State) String() string {
 	}
 
 	_,_ = fmt.Fprint(buf, "}")
-
 	return buf.String()
 }
