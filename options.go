@@ -1,20 +1,24 @@
 package lfsm
 
-type Option func(s *State)
+// Can be used to alter the state struct during initialization.
+type option func(s *State)
 
-func InitialState(v uint64) Option {
+// InitialState sets the initial state of the state machine
+func InitialState(v uint64) option {
 	return func(s *State) {
 		s.current = v
 	}
 }
 
-func StateName(v uint64, name string) Option {
+// StateName sets an alias to a state integer.
+func StateName(v uint64, name string) option {
 	return func(s *State) {
 		s.stateNames[v] = name
 	}
 }
 
-func StateNames(m StateNameMap) Option {
+// StateNames is like StateName but sets aliases to multiple state integers.
+func StateNames(m StateNameMap) option {
 	return func(s *State) {
 		for v,name := range m {
 			s.stateNames[v] = name

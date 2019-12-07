@@ -5,20 +5,10 @@ import (
 	"sync/atomic"
 )
 
-type StateNameMap map[uint64]string
-func (m StateNameMap) find(v uint64) string {
-	name, ok := m[v]
-	if !ok {
-		name = strconv.Itoa(int(v))
-	}
-	return name
-}
-
 type transition struct {
 	src, dst uint64
 	stateNames StateNameMap
 }
-
 type transFn func() error
 type transFnMap map[uint64]transFn
 
@@ -28,18 +18,15 @@ type State struct {
 	stateNames StateNameMap
 }
 
+// Current returns the current state.
 func (s *State) Current() uint64 {
 	return atomic.LoadUint64(&s.current)
 }
 
+// CurrentName returns the alias for the current state.
+// If no alias is defined, the state integer will be returned in its string version.
 func (s *State) CurrentName() string {
 	return s.stateNames.find(atomic.LoadUint64(&s.current))
-}
-
-// Transition tries to change the state.
-// Returns an error if the transition failed.
-func (s *State) Transition(dst uint64) error {
-	return s.TransitionFrom(atomic.LoadUint64(&s.current), dst)
 }
 
 // TransitionFrom tries to change the state.
@@ -52,6 +39,13 @@ func (s *State) TransitionFrom(src, dst uint64) error {
 	return f()
 }
 
+// Transition tries to change the state.
+// It uses the current state as the source state, if you want to specify the source state use TransitionFrom instead.
+// Returns an error if the transition failed.
+func (s *State) Transition(dst uint64) error {
+	return s.TransitionFrom(atomic.LoadUint64(&s.current), dst)
+}
+
 func (s *State) makeTransFn(src, dst uint64) transFn {
 	return func() error {
 		if !atomic.CompareAndSwapUint64(&s.current, src, dst) {
@@ -61,9 +55,8 @@ func (s *State) makeTransFn(src, dst uint64) transFn {
 	}
 }
 
-type Constraints map[uint64][]uint64
-
-func NewState(m Constraints, opts ...Option) *State {
+// NewState creates a new State Machine.
+func NewState(m Constraints, opts ...option) *State {
 	s := State{
 		transitions: make(map[uint64]transFnMap, len(m)),
 		stateNames: make(StateNameMap, len(m)),
@@ -81,4 +74,19 @@ func NewState(m Constraints, opts ...Option) *State {
 	}
 
 	return &s
+}
+
+// Constraints defines the possible transition for this state machine.
+//
+// The map keys describe the source states, and their values are the valid target destinations.
+type Constraints map[uint64][]uint64
+
+// StateNameMap holds a mapping between the state (in its integer form) to its alias.
+type StateNameMap map[uint64]string
+func (m StateNameMap) find(v uint64) string {
+	name, ok := m[v]
+	if !ok {
+		name = strconv.Itoa(int(v))
+	}
+	return name
 }
