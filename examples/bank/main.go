@@ -85,7 +85,7 @@ func NewBankAccount(balance *big.Int, name string) *BankAccount {
 			accountIdle: {accountWithdraw, accountDeposit},
 			accountWithdraw: {accountIdle},
 			accountDeposit: {accountIdle},
-		}, lfsm.StateNameMap{
+		}, lfsm.StateNames{
 			accountIdle: "Idle",
 			accountWithdraw: "Withdrawing",
 			accountDeposit: "Depositing",
@@ -128,7 +128,7 @@ var Wire = wireTransfer{lfsm.NewState(
 		transferAwaitFrom: {transferAwaitTo, transferIdle},
 		transferAwaitTo:   {transferIdle},
 	},
-	lfsm.StateNameMap{
+	lfsm.StateNames{
 		transferIdle:      "Idle",
 		transferAwaitFrom: "Await From",
 		transferAwaitTo:   "Await To",

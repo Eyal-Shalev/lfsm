@@ -6,16 +6,17 @@ import (
 )
 
 type transition struct {
-	src, dst uint32
-	stateNames StateNameMap
+	src, dst   uint32
+	stateNames StateNames
 }
 
 type transitionMap map[uint32]map[uint32]bool
 
+// State is the structs that holds the current state, the available transitions and other options.
 type State struct {
 	current     uint32
 	transitions transitionMap
-	stateNames  StateNameMap
+	stateNames  StateNames
 	initial     uint32
 }
 
@@ -37,7 +38,7 @@ func (s *State) TransitionFrom(src, dst uint32) error {
 		return &InvalidTransitionError{src, dst, s.stateNames}
 	}
 	if !atomic.CompareAndSwapUint32(&s.current, src, dst) {
-		return &TransitionError{src, dst, s.stateNames}
+		return &FailedTransitionError{src, dst, s.stateNames}
 	}
 	return nil
 }
@@ -53,7 +54,7 @@ func (s *State) Transition(dst uint32) error {
 func NewState(m Constraints, opts ...option) *State {
 	s := State{
 		transitions: make(transitionMap, len(m)),
-		stateNames: make(StateNameMap, len(m)),
+		stateNames: make(StateNames, len(m)),
 	}
 
 	for src, dsts := range m {
@@ -75,16 +76,16 @@ func NewState(m Constraints, opts ...option) *State {
 // The map keys describe the source states, and their values are the valid target destinations.
 type Constraints map[uint32][]uint32
 
-// StateNameMap holds a mapping between the state (in its integer form) to its alias.
-type StateNameMap map[uint32]string
-func (m StateNameMap) find(v uint32) string {
+// StateNames holds a mapping between the state (in its integer form) to its alias.
+type StateNames map[uint32]string
+func (m StateNames) find(v uint32) string {
 	name, ok := m[v]
 	if !ok {
 		name = strconv.Itoa(int(v))
 	}
 	return name
 }
-func (m StateNameMap) apply(s *State) {
+func (m StateNames) apply(s *State) {
 	for v,name := range m {
 		s.stateNames[v] = name
 	}

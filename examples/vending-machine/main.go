@@ -95,7 +95,7 @@ func main() {
 				withdrawing: {idle},
 			},
 			lfsm.InitialState(idle),
-			lfsm.StateNameMap{
+			lfsm.StateNames{
 				idle:        "Idle",
 				addingCash:  "Adding cash",
 				buying:      "Buying",

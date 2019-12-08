@@ -20,7 +20,7 @@ func (s *State) String() string {
 	}
 
 	for src,dsts := range s.transitions {
-		for dst,_ := range dsts {
+		for dst := range dsts {
 			_,_ = fmt.Fprintf(buf, "n%d->n%d;", src, dst)
 		}
 	}

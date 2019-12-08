@@ -98,7 +98,7 @@ func TestFSM_Transition(t *testing.T) {
 			switch err.(type) {
 			case *lfsm.InvalidTransitionError:
 				tErr[1].Store(err)
-			case *lfsm.TransitionError:
+			case *lfsm.FailedTransitionError:
 				tErr[0].Store(err)
 			}
 		}()

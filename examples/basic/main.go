@@ -21,8 +21,7 @@ func main() {
 			closed: {opened},
 		},
 		lfsm.InitialState(closed),
-		lfsm.StateName(opened, "opened"),
-		lfsm.StateName(closed, "closed"),
+		lfsm.StateNames{opened: "opened",closed: "closed"},
 	)
 
 	l.Println(s) // digraph g{s[label="",shape=none,height=.0,width=.0];s->n1;n0[label="opened"];n1[label="closed"];n0->n1;n1->n0;}

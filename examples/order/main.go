@@ -103,7 +103,7 @@ func newOrder() *order {
 				canceled:   {canceled},
 			},
 			lfsm.InitialState(creating),
-			lfsm.StateNameMap{
+			lfsm.StateNames{
 				creating:   "creating",
 				adding:     "adding",
 				finalizing: "finalizing",
