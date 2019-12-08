@@ -1,7 +1,6 @@
 package lfsm_test
 
 import (
-	"fmt"
 	"math/rand"
 	"sync"
 	"sync/atomic"
@@ -77,10 +76,6 @@ func TestIntermediateState(t *testing.T) {
 	if err := s.Transition(2); err == nil {
 		t.Error("Invalid transition error expected.")
 	}
-}
-
-func TestState_String(t *testing.T) {
-	fmt.Println(lfsm.NewState(lfsm.Constraints{0:{1},1:{0}}, lfsm.StateNames{0:"opened",1:"closed"}))
 }
 
 func TestFSM_Transition(t *testing.T) {

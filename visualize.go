@@ -7,11 +7,7 @@ import (
 
 // String returns the Graphviz representation of this state machine.
 //
-// Example:
-// 	fmt.Println(lfsm.NewState(lfsm.Constraints{0:{1},1:{0}}, lfsm.StateNames{0:"opened",1:"closed"}))
-//  // Output: digraph g{s[label="",shape=none,height=.0,width=.0];s->n0;n0[label="opened",style=filled];n1[label="closed"];n0->n1;n1->n0;}
-//  // See: https://dreampuf.github.io/GraphvizOnline/#digraph%20g%7Bs%5Blabel%3D%22%22%2Cshape%3Dnone%2Cheight%3D.0%2Cwidth%3D.0%5D%3Bs-%3En0%3Bn0%5Blabel%3D%22opened%22%2Cstyle%3Dfilled%5D%3Bn1%5Blabel%3D%22closed%22%5D%3Bn0-%3En1%3Bn1-%3En0%3B%7D
-// See: https://www.graphviz.org/
+// See: https://www.graphviz.org/ & https://dreampuf.github.io/GraphvizOnline
 func (s *State) String() string {
 	buf := &bytes.Buffer{}
 	_,_ = fmt.Fprint(buf, "digraph g{")
