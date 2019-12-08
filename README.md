@@ -1,4 +1,4 @@
-# Lock-Free State Machine [![Build Status](https://travis-ci.org/Eyal-Shalev/lfsm.svg?branch=master)](https://travis-ci.org/Eyal-Shalev/lfsm)
+# Lock-Free State Machine [![GoDoc](https://godoc.org/github.com/Eyal-Shalev/lfsm?status.svg)](https://godoc.org/github.com/Eyal-Shalev/lfsm) [![Build Status](https://travis-ci.org/Eyal-Shalev/lfsm.svg?branch=master)](https://travis-ci.org/Eyal-Shalev/lfsm)
 LFSM is a light-weight State Machine implementation that doesn't use any locks.
 
 ## Basic Example
