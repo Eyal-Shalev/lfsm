@@ -9,12 +9,12 @@ type transition struct {
 	src, dst uint32
 	stateNames StateNameMap
 }
-type transFn func() error
-type transFnMap map[uint32]transFn
+
+type transitionMap map[uint32]map[uint32]bool
 
 type State struct {
 	current     uint32
-	transitions map[uint32]transFnMap
+	transitions transitionMap
 	stateNames  StateNameMap
 	initial     uint32
 }
@@ -33,11 +33,13 @@ func (s *State) CurrentName() string {
 // TransitionFrom tries to change the state.
 // Returns an error if the transition failed.
 func (s *State) TransitionFrom(src, dst uint32) error {
-	f, ok := s.transitions[src][dst]
-	if !ok {
+	if _, ok := s.transitions[src][dst]; !ok {
 		return &InvalidTransitionError{src, dst, s.stateNames}
 	}
-	return f()
+	if !atomic.CompareAndSwapUint32(&s.current, src, dst) {
+		return &TransitionError{src, dst, s.stateNames}
+	}
+	return nil
 }
 
 // Transition tries to change the state.
@@ -47,26 +49,17 @@ func (s *State) Transition(dst uint32) error {
 	return s.TransitionFrom(atomic.LoadUint32(&s.current), dst)
 }
 
-func (s *State) makeTransFn(src, dst uint32) transFn {
-	return func() error {
-		if !atomic.CompareAndSwapUint32(&s.current, src, dst) {
-			return &TransitionError{src, dst, s.stateNames}
-		}
-		return nil
-	}
-}
-
 // NewState creates a new State Machine.
 func NewState(m Constraints, opts ...option) *State {
 	s := State{
-		transitions: make(map[uint32]transFnMap, len(m)),
+		transitions: make(transitionMap, len(m)),
 		stateNames: make(StateNameMap, len(m)),
 	}
 
 	for src, dsts := range m {
-		s.transitions[src] = make(transFnMap)
+		s.transitions[src] = make(map[uint32]bool)
 		for _, dst := range dsts {
-			s.transitions[src][dst] = s.makeTransFn(src, dst)
+			s.transitions[src][dst] = true
 		}
 	}
 
