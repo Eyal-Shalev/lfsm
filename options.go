@@ -24,9 +24,3 @@ func StateName(v uint32, name string) option {
 		s.stateNames[v] = name
 	})
 }
-
-func (m StateNameMap) apply(s *State) {
-	for v,name := range m {
-		s.stateNames[v] = name
-	}
-}

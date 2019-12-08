@@ -84,3 +84,8 @@ func (m StateNameMap) find(v uint32) string {
 	}
 	return name
 }
+func (m StateNameMap) apply(s *State) {
+	for v,name := range m {
+		s.stateNames[v] = name
+	}
+}
