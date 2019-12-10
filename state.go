@@ -5,11 +5,6 @@ import (
 	"sync/atomic"
 )
 
-type transition struct {
-	src, dst   uint32
-	stateNames StateNames
-}
-
 type transitionMap map[uint32]map[uint32]bool
 
 // State is the structs that holds the current state, the available transitions and other options.
@@ -35,10 +30,10 @@ func (s *State) CurrentName() string {
 // Returns an error if the transition failed.
 func (s *State) TransitionFrom(src, dst uint32) error {
 	if _, ok := s.transitions[src][dst]; !ok {
-		return &InvalidTransitionError{src, dst, s.stateNames}
+		return NewInvalidTransitionError(src, dst, s.stateNames)
 	}
 	if !atomic.CompareAndSwapUint32(&s.current, src, dst) {
-		return &FailedTransitionError{src, dst, s.stateNames}
+		return NewFailedTransitionError(src, dst, s.stateNames)
 	}
 	return nil
 }

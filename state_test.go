@@ -1,11 +1,7 @@
 package lfsm_test
 
 import (
-	"math/rand"
-	"sync"
-	"sync/atomic"
 	"testing"
-	"time"
 
 	"github.com/Eyal-Shalev/lfsm"
 )
@@ -75,40 +71,5 @@ func TestIntermediateState(t *testing.T) {
 	}
 	if err := s.Transition(2); err == nil {
 		t.Error("Invalid transition error expected.")
-	}
-}
-
-func TestFSM_Transition(t *testing.T) {
-	rand.Seed(time.Now().UTC().UnixNano())
-	s := lfsm.NewState(lfsm.Constraints{
-		0: {1, 2},
-		1: {0, 2},
-		2: {0, 1},
-	}, lfsm.InitialState(0))
-
-	var tErr [2]atomic.Value
-
-	wg := new(sync.WaitGroup)
-	for i := 0; i < 999; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
-			err := s.Transition(uint32(rand.Intn(3)))
-			switch err.(type) {
-			case *lfsm.InvalidTransitionError:
-				tErr[1].Store(err)
-			case *lfsm.FailedTransitionError:
-				tErr[0].Store(err)
-			}
-		}()
-	}
-
-	wg.Wait()
-	if tErr[0].Load() == nil {
-		t.Error("transition error expected")
-	}
-	if tErr[1].Load() == nil {
-		t.Error("invalid transition error expected")
 	}
 }
